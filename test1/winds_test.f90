@@ -226,7 +226,7 @@ program zeus
         e(i) = cv*d(i)*t(i)
       enddo
 
-      tmax = (/1.d5*yr, 2.d5*yr, 5.d5*yr, 1.d6*yr, 5.d6*yr/)
+      tmax = (/1.d4*yr, 5.d4*yr, 1.d5*yr, 5.d5*yr, 1.d6*yr/)
         
     end if
 

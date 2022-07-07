@@ -23,7 +23,7 @@ data3 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\test1\initial_veloci
 
 #print(data.head)
 colors =['#f89441','#e56b5d','#cb4679','#a82296','#0c0887']
-labels =['t=$1.10^{5}$ yrs','t=$2.10^{5}$ yrs','t=$5.10^{5}$ yrs','t=$1.10^{6}$ yrs','t=$5.10^{6}$ yrs']
+labels =['t=$1.10^{4}$ yrs','t=$5.10^{4}$ yrs','t=$1.10^{5}$ yrs','t=$5.10^{5}$ yrs','t=$1.10^{6}$ yrs']
 
 fig, ax = plt.subplots(nrows=2,ncols=2, figsize =(14,8))
 
