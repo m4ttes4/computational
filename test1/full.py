@@ -9,16 +9,16 @@ custom_params = {"axes.spines.right": False, "axes.spines.top": False}
 sns.set_theme(style="ticks", rc=custom_params)
 
 
-data = pd.read_csv(r'C:\Users\matteo\Desktop\scriptVSC\progetto2\pressure_winds.dat', sep='\s+',
+data = pd.read_csv(r'C:\Users\matteo\Desktop\computational\test1\pressure_winds.dat', sep='\s+',
                     engine='python',header=None, comment='#')
 
-data1 = pd.read_csv(r'C:\Users\matteo\Desktop\scriptVSC\progetto2\temperature_winds.dat', sep='\s+',
+data1 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\test1\temperature_winds.dat', sep='\s+',
                     engine='python',header=None, comment='#')
 
-data2 = pd.read_csv(r'C:\Users\matteo\Desktop\scriptVSC\progetto2\density_winds.dat', sep='\s+',
+data2 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\test1\density_winds.dat', sep='\s+',
                     engine='python',header=None, comment='#')
 
-data3 = pd.read_csv(r'C:\Users\matteo\Desktop\scriptVSC\progetto2\speed_winds.dat', sep='\s+',
+data3 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\test1\speed_winds.dat', sep='\s+',
                     engine='python',header=None, comment='#')
 
 
@@ -26,7 +26,7 @@ data3 = pd.read_csv(r'C:\Users\matteo\Desktop\scriptVSC\progetto2\speed_winds.da
 
 #print(data.head)
 colors =['#f89441','#e56b5d','#cb4679','#a82296','#0c0887']
-labels =['t=$1.10^{5}$ yrs','t=$2.10^{5}$ yrs','t=$5.10^{5}$ yrs','t=$1.10^{6}$ yrs','t=$1.10^{7}$ yrs']
+labels =['t=$2.10^{4}$ yrs','t=$4.10^{4}$ yrs','t=$6.10^{4}$ yrs','t=$8.10^{4}$ yrs','t=$1.10^{5}$ yrs']
 
 fig, ax = plt.subplots(nrows=2,ncols=2, figsize =(14,8))
 

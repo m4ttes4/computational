@@ -7,8 +7,8 @@ import numpy as np
 
 
 #data = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\sedov010.dat',header=None,sep='\s+') 
-data = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\energ000.dat',header=None,sep='\s+')
-data2 =  pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\sedov000.dat',header=None,sep='\s+')
+data = pd.read_csv(r'C:\Users\matteo\Desktop\computational\test1\shock_radius_winds.dat',header=None,sep='\s+')
+#data =  pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\sedov000.dat',header=None,sep='\s+')
 
 
 
@@ -18,15 +18,19 @@ custom_params = {"axes.spines.right": False, "axes.spines.top": False}
 sns.set_theme(style="ticks", rc=custom_params)
 
 plt.plot(data[0], data[2])
-plt.plot(data[0], data[3])
 plt.plot(data[0], data[1])
-plt.plot(data[0], data[4])
+plt.yscale('log')
 plt.xscale('log')
 
 plt.show()
 
-plt.plot(data2[0], data2[3])
-plt.plot(data2[0], data2[4])
+plt.plot(data[0], data[3])
+
 plt.xscale('log')
 plt.yscale('log')
+plt.show()
+
+plt.plot(data[0], data[4])
+plt.plot(data[0], data[5])
+plt.plot(data[0], data[6])
 plt.show()
