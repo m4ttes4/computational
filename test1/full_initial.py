@@ -6,16 +6,16 @@ custom_params = {"axes.spines.right": False, "axes.spines.top": False}
 sns.set_theme(style="ticks", rc=custom_params)
 
 
-data = pd.read_csv(r'C:\Users\matteo\Desktop\scriptVSC\progetto2\initial_pressure.dat', sep='\s+',
+data = pd.read_csv(r'C:\Users\matteo\Desktop\computational\test1\initial_pressure.dat', sep='\s+',
                     engine='python',header=None, comment='#')
 
-data1 = pd.read_csv(r'C:\Users\matteo\Desktop\scriptVSC\progetto2\initial_temp.dat', sep='\s+',
+data1 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\test1\initial_temp.dat', sep='\s+',
                     engine='python',header=None, comment='#')
 
-data2 = pd.read_csv(r'C:\Users\matteo\Desktop\scriptVSC\progetto2\initial_density.dat', sep='\s+',
+data2 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\test1\initial_density.dat', sep='\s+',
                     engine='python',header=None, comment='#')
 
-data3 = pd.read_csv(r'C:\Users\matteo\Desktop\scriptVSC\progetto2\initial_velocity.dat', sep='\s+',
+data3 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\test1\initial_velocity.dat', sep='\s+',
                     engine='python',header=None, comment='#')
 
 

@@ -18,7 +18,7 @@ program zeus
     use data
     implicit real*8 (a-h,o-z) !  i l m n
 
-    real*8 :: lx1, lum_x, kinetic, m_lost
+    real*8 :: lx1, lum_x, kinetic, m_lost, lum_bol
     real*8 :: v(N), e(N), p(N), d(N), t(N), xa(N), xb(N), dxa(N), dxb(N)
     real*8 :: g2a(N), g2b(N), g31a(N), g31b(N), dvl1a(N), dvl1b(N)
     real*8 :: divV(N), dstar(N), s(N), F1(N), M(N), e_dstar(N), F2(N), vstar(N), F3(N)
@@ -277,7 +277,7 @@ program zeus
                 d(i) = d(i) + (m_lost*dtmin/vol) !dens = dens precedente + materia aggiunta
                 !e(i) = cv*d(i)*t(i)
                 !d(i) = d(i) + m_lost/(4*pi*xa(i)**2*v_winds)
-                e(i) = e(i) + 0.5*m_lost*dtmin*v_winds**2/vol !energia = energia meccanica dei venti
+                e(i) =  e(i) + 0.5*m_lost*dtmin*v_winds**2/vol !energia = energia meccanica dei venti
             enddo           
         end if
 
@@ -298,7 +298,7 @@ program zeus
         time=time+dtmin
 
      
-                if(ncicli == 1)then
+                if(ncicli == 2)then
                     print*, 'FIRST TIME-STEP == ',dtmin/yr
                     print*, e(3), p(3), d(3)
                     
@@ -367,9 +367,12 @@ program zeus
             go to 44
         end if
 
+                
+
                 !add the cooling function
                 do i=2, N-1
                     e(i)=e(i)-dtmin*(d(i)/2.17d-24)**2 *Cool(t(i)) !energy with en. loss
+                   ! energy_bol1 = energy_bol1 + 4*pi*(xa(i)**2)*(dn(i)**2) *cool(t(i))*(xa(i)-xa(i-1))  
                 end do
                 CALL BCb(e)
 
@@ -500,41 +503,39 @@ program zeus
         R_shock=(2.*e0/d0)**(1./5.)*(time**(2./5.)) ! sedov solution
     !====================== X-RAY LUMINOSITY ===========================
         
-        !controllo della temperatura da fare     
+         
               
 
         !only gas with t>10e6 emitt  X rays 
-        !lx stand fo luminosity x
+   
 
         do i=1, N
             dn(i)=d(i)/(mu*mp)            
         enddo
 
         lum_x = 0   !reset lum x for each time step
-        lx1 = 0
-       
         energy_x=0
-        
+        energy_bol = 0
+        lum_bol = 0
         do i=2, N-1
-            if(t(i)>1.d6)then
-                
-                lx1=4*pi*(xa(i)**2)*(dn(i)**2) *cool(t(i))*(xa(i)-xa(i-1))
+            if(t(i)>= 1.d6)then                
+                lum_x=lum_x + 4*pi*(xa(i)**2)*(dn(i)**2) *cool(t(i))*(xa(i)-xa(i-1))
                 
             else
-               lx1=0                
-            end if
+               lum_x = lum_x               
+            end if       
+            energy_x = energy_x + lum_x*dtmin 
+        
+        
+            if(t(i) >= 1.d4)then
+                lum_bol = lum_bol + 4*pi*(xa(i)**2)*(dn(i)**2) *cool(t(i))*(xa(i)-xa(i-1))
+            else
+                lum_bol = lum_bol
+            end if                    
+                energy_bol = energy_bol + lum_bol*dtmin
+        end do
 
-  
-                
-                lum_x=lum_x+lx1 
-                
-                energy_x =  lum_x*dtmin   
-                                         
-        enddo
 
-        if(scimmia_cappuccino .eqv. .TRUE.)then !skip the cooling --> NO EMISSION 
-            energy_x = 0
-        end if
         !========================================================================     
 
         
@@ -556,19 +557,26 @@ program zeus
 
         enddo
 
+        !aggiungo perdite radiative
+        if(scimmia_cappuccino .eqv. .true.)then
+        energy_lost = 0.
+        else
+        energy_lost = energy_bol
+        end if
 
-       
-        total = total + energy_x
+        total = total + energy_lost
 
         efficency = total/e0    !efficency
 
         !find a way to plot  the R_shock over time
         !approximation: r_shock = xa corresponding to max vaule of v or p    
 
+
+
         if(orangotango .eqv. .true. .and. winds .eqv. .false.)then
 
             write(28,1000)time/yr, xa(maxloc(q))/cmpc, R_shock/cmpc, lum_x, log10(thermal/e0) , log10(kinetic/e0), log10(total/e0),&
-            log10(energy_x/e0)
+            log10(energy_bol/e0)
             !print*,'ncicli=', ncicli,  ' dtmin=', real(dtmin/yr), 't=', real(time)/yr
 
         end if
