@@ -170,7 +170,7 @@ program zeus
 
     n0 = d0/(mu*mp)  !numerical density
     vol = 1.333*pi*xa(4)**3
-    energy_x = 0
+    
 
     m_lost = 1.d19
     v_winds = 1.d8
