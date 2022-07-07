@@ -19,8 +19,8 @@ sns.set_theme(style="ticks", rc=custom_params)
 
 plt.plot(data[0], data[2])
 plt.plot(data[0], data[1])
-plt.yscale('log')
-plt.xscale('log')
+#plt.yscale('log')
+#plt.xscale('log')
 
 plt.show()
 
