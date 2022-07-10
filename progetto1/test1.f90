@@ -301,7 +301,7 @@ MODULE DATA
 
     DO i=1, 5
          !HERE ARE DEFINED THE VARIABLES THAT WILL BE IN THE TIME CYCLE
-      tempo = 0 !we need to reset time at each i-cycle
+      tempo = 0 !we need to reset time at each i-cycle since we incorporate more phyaical events
          
       do j=1, jmax
 
@@ -454,7 +454,7 @@ MODULE DATA
     
 
  ! test variazione di parametri per riprodurre osservazioni
-
+      go to 99
       tempo = 0 !time reset after the first tyme cycle
 
       vturb=300.e5   
@@ -475,7 +475,7 @@ MODULE DATA
          do while(tempo<tmax(i))
 
             tempo = tempo+dt
-            snu = 0.7*((tempo*yr)/tnow)**(-1.1)
+            snu = 0.7*((tempo*yr)/tnow)**(-0.5)
             
 
             do j=2, jmax-1
@@ -543,7 +543,9 @@ MODULE DATA
       enddo
       close(30)
 
+      99 continue
 
+   
 
 
 
