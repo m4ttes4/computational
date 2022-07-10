@@ -140,12 +140,20 @@ MODULE DATA
     !profilo teorico massa stelle 
     do j=1, jmax
        M_star(j)=Mgal*r(j)**2/((r(j)+aher)**2)
-       M_tot(j)=massaDM_num(j)+M_star(j)
+       M_tot(j)=massaDM_num(j)+M_star(j) !is only called m total
     enddo
- 
+   
+   1033 format(1pe12.4)
+   PRINT*, 'TOTAL DARK MATTER MASS:'
+         call massa(densDM, vol)
+   PRINT*, 'TOTAL STAR MASS:'
+         WRITE(*,1033) M_star(4999)/msol
+
+
+
     !per plot di confronto
     open(30, file='massaDM.dat')
-       do j=1,  jmax
+       do j=2,  jmax-1
           write(30,1006)rr(j)/cmkpc, massaDM_ana(j)/msol, massaDM_num(j)/msol, M_star(j)/msol
        enddo
     close(30)
@@ -258,10 +266,13 @@ MODULE DATA
        
 
          write(*,*)'valori delle frazioni barioniche per controllo'
-         write(*,*)'--f_b------',        'density'
+         !write(*,*)'--f_b------',        'density'
         
+         print*, 'BARIONIC FRACTION AND DENS FOR CLUSTER GAS:'
          write(*,1003) f_b(4900) , dens_gas0 !4900 is r_vir
+         print*, 'BARIONIC FRACTION AND DENS FOR CLUSTER GAS AND BCG:'
          write(*,1003) f_b2(4900), dens_gas1
+         print*, 'BARIONIC FRACTION AND DENS FOR CG, BCG AND TEMP PROFILE:'
          write(*,1003) f_b3(4900), dens_gas2
       
          write(*,*) !spazio sul term 
@@ -339,6 +350,7 @@ MODULE DATA
          do j=2, jmax-1
                   !----- NO DIFFUSION, ONLY SOURCE
             dens_fe_source(j)=dens_fe_source(j)+dt*source(j) 
+
             Zfe_source(j)=1.4*(dens_fe_source(j)/dens_gas_temp(j))
 
 
@@ -374,7 +386,8 @@ MODULE DATA
       enddo !end of time cycle
 
          do j=1, jmax
-            zfe_diff(j)=zfe_diff(j)-Zfe_out !subctract 
+            zfe_diff(j)=zfe_diff(j)-Zfe_out !sottraggo eccesso
+            dens_fe_diff = zfe_diff(j)*dens_gas_temp(j)*1.4 !per il calcolo della massa
          enddo
 
         !_________________- MAIN RESULTS-___________________
@@ -414,9 +427,12 @@ MODULE DATA
          write(*,1005) ncicli, int(tempo/(1.d9*yr)) !in order to see the evolution over the i cycle
 
    ENDDO !end of i cycle
+   do j=2, jmax-1
+      dens_fe_paper = Zfe_paper_sub(j)*dens_gas_temp(j)*1.4  !ricalcolo densità con eccesso tolto per il calcolo della massa
+   enddo
 
    write(*,*) 'massa prima diffusione'
-      call  massa(dens_fe_paper,vol)
+      call massa(dens_fe_paper, vol)
 
    write(*,*)'massa dopo diffusione'
       call massa(dens_fe_diff, vol)
@@ -454,7 +470,7 @@ MODULE DATA
     
 
  ! test variazione di parametri per riprodurre osservazioni
-      go to 99
+     
       tempo = 0 !time reset after the first tyme cycle
 
       vturb=300.e5   
@@ -475,7 +491,7 @@ MODULE DATA
          do while(tempo<tmax(i))
 
             tempo = tempo+dt
-            snu = 0.7*((tempo*yr)/tnow)**(-0.5)
+            snu = 10*((tempo*yr)/tnow)**(-0.5)
             
 
             do j=2, jmax-1
@@ -543,8 +559,7 @@ MODULE DATA
       enddo
       close(30)
 
-      99 continue
-
+      
    
 
 
