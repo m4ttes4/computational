@@ -473,12 +473,12 @@ MODULE DATA
      
       tempo = 0 !time reset after the first tyme cycle
 
-      vturb=300.e5   
-      lturb=15.*cmkpc  
-      rscala=30.*cmkpc
-      kappa=0.11*vturb*lturb    
+      !vturb=300.e5   
+      !lturb=15.*cmkpc  
+      !rscala=30.*cmkpc
+      !kappa=0.11*vturb*lturb    
       tnow = 13.7d9*yr
-
+      kappa = 2.4d29
       dt=((r(5)-r(4))**2/(2*kappa))
 
 
@@ -491,7 +491,7 @@ MODULE DATA
          do while(tempo<tmax(i))
 
             tempo = tempo+dt
-            snu = 10*((tempo*yr)/tnow)**(-0.5)
+            snu = 0.7*((tempo*yr)/tnow)**(-1.1)
             
 
             do j=2, jmax-1
