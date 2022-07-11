@@ -20,7 +20,7 @@ program zeus
 
     real*8 :: lx1, lum_x, kinetic, m_lost, lum_bol
     real*8 :: v(N), e(N), p(N), d(N), t(N), xa(N), xb(N), dxa(N), dxb(N)
-    real*8 :: g2a(N), g2b(N), g31a(N), g31b(N), dvl1a(N), dvl1b(N)
+    real*8 :: g2a(N), g2b(N), g31a(N), g31b(N), dvl1a(N), dvl1b(N), deltav(N)
     real*8 :: divV(N), dstar(N), s(N), F1(N), M(N), e_dstar(N), F2(N), vstar(N), F3(N)
     real*8 :: q(N)
     real*8 :: v1(N),v2(N),v3(N),v4(N),v5(N),p1(N),p2(N),p3(N),p4(N),p5(N)
@@ -275,8 +275,6 @@ program zeus
                 v(i) = v_winds
                 t(i) = t0
                 d(i) = d(i) + (m_lost*dtmin/vol) !dens = dens precedente + materia aggiunta
-                !e(i) = cv*d(i)*t(i)
-                !d(i) = d(i) + m_lost/(4*pi*xa(i)**2*v_winds)
                 e(i) =  e(i) + 0.5*m_lost*dtmin*v_winds**2/vol !energia = energia meccanica dei venti
             enddo           
         end if
@@ -299,9 +297,13 @@ program zeus
 
      
                 if(ncicli == 2)then
-                    print*, 'FIRST TIME-STEP == ',dtmin/yr
-                    print*, e(3), p(3), d(3)
-                    
+                    print*, 'FIRST TIME-STEP == ', dtmin/yr
+                    print*, 'initial energy ==', e(2)*vol
+                    if(winds .eqv. .false.)then
+                        print*, 'initial velocity ==', v(5)/1.d5
+                    else
+                        print*, 'initial velocity ==', v(5)/1.d5
+                    end if
                 end if
        
         
@@ -372,26 +374,26 @@ program zeus
                 !add the cooling function
                 do i=2, N-1
                     e(i)=e(i)-dtmin*(d(i)/2.17d-24)**2 *Cool(t(i)) !energy with en. loss
-                   ! energy_bol1 = energy_bol1 + 4*pi*(xa(i)**2)*(dn(i)**2) *cool(t(i))*(xa(i)-xa(i-1))  
+                  
                 end do
                 CALL BCb(e)
 
         44 continue
     
         do i=1, N
-        t(i)=e(i)/(cv*d(i)) !temp. with en.loss
+            t(i)=e(i)/(cv*d(i)) !temp. with en.loss
         end do
     
     
         do i=1, N
         if (t(i) .le. t0_min) then !condition t>t0_min
-        t(i)=t0_min
+            t(i)=t0_min
         end if
         end do
     
     
         do i=2, N-1
-        e(i)=cv*d(i)*t(i) !new energy associated to new temperature condition
+            e(i)=cv*d(i)*t(i) !new energy associated to new temperature condition
         end do
         CALL BCb(e)
      
@@ -570,13 +572,16 @@ program zeus
 
         !find a way to plot  the R_shock over time
         !approximation: r_shock = xa corresponding to max vaule of v or p    
+        !shock come maggiore differenza di velocità(?)
 
 
 
         if(orangotango .eqv. .true. .and. winds .eqv. .false.)then
 
-            write(28,1000)time/yr, xa(maxloc(q))/cmpc, R_shock/cmpc, lum_x, log10(thermal/e0) , log10(kinetic/e0), log10(total/e0),&
-            log10(energy_bol/e0)
+        
+
+            write(28,1000)time/yr, xa(maxloc(q))/cmpc, R_shock/cmpc, lum_x, &
+            log10(thermal/e0) , log10(kinetic/e0), log10(total/e0),log10(energy_bol/e0)
             !print*,'ncicli=', ncicli,  ' dtmin=', real(dtmin/yr), 't=', real(time)/yr
 
         end if

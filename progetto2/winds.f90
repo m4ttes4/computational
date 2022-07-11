@@ -580,7 +580,7 @@ program zeus
 
         if(orangotango .eqv. .true. )then
 
-            write(28,1000)time/yr, xa(maxloc(q))/cmpc, R_shock/cmpc, lum_x, lum_bol
+            write(28,1000)time/yr, xa(maxloc(v))/cmpc, R_shock/cmpc, lum_x, lum_bol
             !log10(thermal/e0) , log10(kinetic/e0), log10(total/e0),log10(energy_bol/e0)
             !print*,'ncicli=', ncicli,  ' dtmin=', real(dtmin/yr), 't=', real(time)/yr
             write(77,1000)time/yr,log10(thermal/e0) , log10(kinetic/e0), log10(total/e0),log10(energy_bol/e0)
