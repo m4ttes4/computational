@@ -728,28 +728,6 @@ end program zeus
     
     END FUNCTION Cool
 
-    SUBROUTINE winds_injection(vel,dens,energy,pres,temp,grid,dtime)
-    use data
-    implicit NONE
-    real*8, dimension(N):: vel,dens,energy,pres,temp,grid
-    real*8 :: vol, m_lost, dtime
-
-        vol = 1.333*pi*grid(4)**3 !volume that contains sn energy
-      
-        m_lost = 1.d20
-       
-        do i=1,3
-            vel(i) = 1.d8
-            temp(i) = 1.d4
-            dens(i) = dens(i)+(m_lost*dtime)/vol
-            energy(i) = cv*dens(i)*temp(i)
-            pres(i) = energy(i)*(gam-1)
-            
-        end do
-
-    end SUBROUTINE winds_injection
-
-!questa subroutine individua le caratteristiche fasi del ISM
     subroutine file(nome_file, grid, a,b,c,d,e)
         use data
     character nome_file*(*)
