@@ -300,9 +300,9 @@ program zeus
                     print*, 'FIRST TIME-STEP == ', dtmin/yr
                     print*, 'initial energy ==', e(2)*vol
                     if(winds .eqv. .false.)then
-                        print*, 'initial velocity ==', v(5)/1.d5
+                        print*, 'initial velocity ==', v(4)/1.d5
                     else
-                        print*, 'initial velocity ==', v(5)/1.d5
+                        print*, 'initial velocity ==', v(3)/1.d5
                     end if
                 end if
        
