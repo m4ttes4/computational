@@ -31,7 +31,7 @@ MODULE DATA
          pot_gal(jmax),     M_tot(jmax),    M_gas(jmax), num1(jmax), den1(jmax),&
          den2(jmax),        T(jmax),        h(jmax),            dens_gas_gal(jmax),&
          lnd2(jmax),        lnd3(jmax),     dens_gas_temp(jmax),  &
-         M_gas_temp(jmax),  M_gas2(jmax),   dens_gas_ana2(jmax)
+         M_gas_temp(jmax),  M_gas2(jmax),   dens_gas_ana2(jmax), kappa1(jmax)
  
  real*8 :: rmin,rmax,mvir,rvir, Mgal, r_half, a, Mgas, num, b2,Tcentr, kappa, lturb, k
  
@@ -66,7 +66,7 @@ MODULE DATA
     aher=r_half/(1.+sqrt(2.))
  
     Zfe_sol=1.8d-3
-    Zfe_out=0.4*Zfe_sol
+    Zfe_out=0.4*Zfe_sol +0.01*Zfe_sol !second term to pefectly subctract the exeed
     zfesn=0.744/1.4
  
     vturb=260.e5   
@@ -143,21 +143,11 @@ MODULE DATA
        M_tot(j)=massaDM_num(j)+M_star(j) !is only called m total
     enddo
    
-   1033 format(1pe12.4)
-   PRINT*, 'TOTAL DARK MATTER MASS:'
-         call massa(densDM, vol)
-   PRINT*, 'TOTAL STAR MASS:'
-         WRITE(*,1033) M_star(4999)/msol
 
 
 
-    !per plot di confronto
-    open(30, file='massaDM.dat')
-       do j=2,  jmax-1
-          write(30,1006)rr(j)/cmkpc, massaDM_ana(j)/msol, massaDM_num(j)/msol, M_star(j)/msol
-       enddo
-    close(30)
-    1006 format(4(1pe12.4))
+
+
  
  !################ CALCOLO DEI PROFILI DI DENSITA #############
  
@@ -276,9 +266,22 @@ MODULE DATA
          write(*,1003) f_b3(4900), dens_gas2
       
          write(*,*) !spazio sul term 
+            1033 format(1pe12.4)
+   PRINT*, 'TOTAL DARK MATTER MASS:'
+         call massa(densDM, vol)
+   PRINT*, 'TOTAL STAR MASS:'
+         WRITE(*,1033) M_star(4999)/msol
+   PRINT, 'TOTAL GAS MASS:'
+         call massa(dens_gas_temp,vol)
 
- 
-    !salvo copie vecchi dati
+    !per plot di confronto
+    open(30, file='massaDM.dat')
+       do j=2,  jmax-1
+          write(30,1000)rr(j)/cmkpc, massaDM_ana(j)/msol, massaDM_num(j)/msol, M_star(j)/msol,&
+          M_gas_temp(j)/msol
+       enddo
+    close(30)
+    !1006 format(4(1pe12.4))
     !dati sulle densità
     open(10, file='densit.dat')
     write(10,*)'#'
@@ -472,15 +475,11 @@ MODULE DATA
  ! test variazione di parametri per riprodurre osservazioni
      
       tempo = 0 !time reset after the first tyme cycle
-
-      !vturb=300.e5   
-      !lturb=15.*cmkpc  
-      !rscala=30.*cmkpc
-      !kappa=0.11*vturb*lturb    
+ 
       tnow = 13.7d9*yr
-      kappa = 2.4d29
+      kappa = 1.3d29
       dt=((r(5)-r(4))**2/(2*kappa))
-
+      
 
       do i=1, 5
          !definizione parametri su cui lavoro
@@ -491,15 +490,15 @@ MODULE DATA
          do while(tempo<tmax(i))
 
             tempo = tempo+dt
-            snu = 0.7*((tempo*yr)/tnow)**(-1.1)
-            
+            !snu = 0.7*((tempo*yr)/tnow)**(-1.1)
+            snu = 0.02*((tempo/(tnow))**(-1.1))
 
             do j=2, jmax-1
 
                alphast=4.7e-20
-               alphasn=4.436e-20*(snu/7.4)
+               alphasn = (0.74/7.5)*(1/1.d10)*(1/3.156d9)*snu
       
-               source_time(j)=dens_star(j)*(alphast*Zfe_sol/1.4+alphasn*zfesn)
+               source_time(j)=dens_star(j)*(alphast*Zfe_sol/1.4+ alphasn)
             enddo
 
             do j=2, jmax-1
@@ -511,6 +510,15 @@ MODULE DATA
             
       
             do j=2, jmax-1
+               if(j>50)then
+                  kappa = 1.55d29
+                  dt=((r(5)-r(4))**2/(2*kappa))
+               else if(j<=50)then
+                  kappa = 9.97d28
+                  dt=((r(5)-r(4))**2/(2*kappa))
+               end if
+
+
                rho_fe_time(j)=rho_fe_time(j)+dt*source_time(j)
 
                densp1=0.5*(dens_gas_temp(j+1)+dens_gas_temp(j))

@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 #data = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\sedov010.dat',header=None,sep='\s+') 
-data = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto1\diff_sorg.dat',header=None,sep='\s+',
+data = pd.read_csv(r'C:\Users\matte\Desktop\computational\progetto1\time.dat',header=None,sep='\s+',
  comment='#', engine='python')
 #data =  pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\sedov000.dat',header=None,sep='\s+')
 #data2 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\test1\shock_radius_winds2.dat',header=None,sep='\s+')
@@ -22,7 +22,7 @@ for i in range(3,8):
     ax.set_xscale('log')
 ax.plot(data[0], data[1], label='$Z_{fe}$ subcracted', color = 'black')
 ax.plot(data[0], data[2], label='$Z_{fe}$ observed', linestyle = '--',color = 'black')
-ax.set_xlabel('distance [Mpc]')
+ax.set_xlabel('distance [Kpc]')
 ax.set_ylabel('$Z_{fe} / Z_{sol}$')
 plt.legend()
 fig.suptitle('source and diffusion')
