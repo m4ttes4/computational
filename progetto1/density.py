@@ -5,11 +5,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 #data = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\sedov010.dat',header=None,sep='\s+') 
-data = pd.read_csv(r'C:\Users\matte\Desktop\computational\progetto1\temp_paper.dat',header=None,sep='\s+',
+data = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto1\temp_paper.dat',header=None,sep='\s+',
  comment='#', engine='python')
-data2 = pd.read_csv(r'C:\Users\matte\Desktop\computational\progetto1\massaDM.dat',header=None,sep='\s+',
+data2 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto1\massaDM.dat',header=None,sep='\s+',
  comment='#', engine='python')
-data3 = pd.read_csv(r'C:\Users\matte\Desktop\computational\progetto1\densit.dat',header=None,sep='\s+',
+data3 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto1\densit.dat',header=None,sep='\s+',
  comment='#', engine='python')
 #data =  pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\sedov000.dat',header=None,sep='\s+')
 #data2 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\test1\shock_radius_winds2.dat',header=None,sep='\s+')
@@ -32,10 +32,9 @@ plt.show()
 
 plt.plot(data2[0], data2[1],color = colors[3], label='dark matter numerical')
 plt.plot(data2[0], data2[2],color = colors[2], label='dark matter analitical')
-plt.plot(data2[0], data2[3],color = colors[1], label='stars mass profile')
-plt.plot(data2[0], data2[4],color = colors[0], label='gas mass profile')
+plt.plot(data2[0], data2[3],color = colors[0], label='stars mass profile')
 plt.xlabel('distance [kpc]')
-plt.ylabel('$M/M_{sol}$')
+plt.ylabel('density [cgs]')
 plt.xscale('log')
 plt.yscale('log')
 plt.legend()
