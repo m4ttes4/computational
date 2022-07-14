@@ -8,60 +8,42 @@ custom_params = {"axes.spines.right": False, "axes.spines.top": False}
 sns.set_theme(style="ticks", rc=custom_params)
 
 
-data = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\initial_pressure.dat', sep='\s+',
+data = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\sus.dat', sep='\s+',
                     engine='python',header=None, comment='#')
 
-data1 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\initial_density.dat', sep='\s+',
-                    engine='python',header=None, comment='#')
-
-data2 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\initial_temp.dat', sep='\s+',
-                    engine='python',header=None, comment='#')
-
-data3 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\initial_velocity.dat', sep='\s+',
-                    engine='python',header=None, comment='#')
 
 colors =['#f89441','#e56b5d','#cb4679','#a82296','#0c0887']
 labels =['t=$2.10^{4}$ yrs','t=$4.10^{4}$ yrs','t=$6.10^{4}$ yrs','t=$8.10^{4}$ yrs','t=$1.10^{5}$ yrs']
 
+fig,ax = plt.subplots(2,2 ,figsize = (14,10))
 
-for i in range(5):
-    plt.plot(data[0], data[i+1], color=colors[i], label=labels[i])
-    plt.xscale('log')
-    plt.yscale('log')
-    plt.xlabel('distance [pc]')
-    plt.ylabel('pressure [cgs]')
-plt.title('Pressure')
-plt.legend()
-plt.show()
+ax[0,0].plot(data[0], data[2], color=colors[4])
+#ax[0,0].set_xscale('log')
+#ax[0,0].set_yscale('log')
+ax[0,0].set_xlabel('distance')
+ax[0,0].set_ylabel('density')
+ax[0,0].set_title('density')
 
-for i in range(5):
-    plt.plot(data3[0], data3[i+1], color=colors[i], label=labels[i])
-    plt.xscale('log')
-    #plt.xscale('log')
-    plt.xlabel('distance [pc]')
-    plt.ylabel('velocity [$km.s^{-1}$]')
-plt.title('Velocity')
-plt.legend()
-plt.show()
+ax[0,1].plot(data[0], data[3], color=colors[4])
+#ax[0,1].set_xscale('log')
+#ax[0,1].set_yscale('log')
+ax[0,1].set_xlabel('distance')
+ax[0,1].set_ylabel('velocity')
+ax[0,1].set_title('velocity')
 
-for i in range(5):
-    plt.plot(data2[0], data2[i+1], color=colors[i], label=labels[i])
-    plt.yscale('log')
-    plt.xscale('log')
-    plt.xlabel('distance [pc]')
-    plt.ylabel('density [$cm^-{3}$]')
-    
-plt.title('Density')
-plt.legend()
-plt.show()
+ax[1,0].plot(data[0], data[4], color=colors[4])
+#ax[1,0].set_xscale('log')
+#ax[1,0].set_yscale('log')
+ax[1,0].set_xlabel('distance')
+ax[1,0].set_ylabel('energy')
+ax[1,0].set_title('specific energy')
 
-for i in range(5):
-    plt.plot(data1[0], data1[i+1], color=colors[i], label=labels[i])
-    plt.yscale('log')
-    plt.xscale('log')
-    plt.xlabel('distance [pc]')
-    plt.ylabel('temperature [K]')
-    
-plt.title('Temperature')
-plt.legend()
+ax[1,1].plot(data[0], data[5], color=colors[4])
+#ax[1,1].set_xscale('log')
+#ax[1,1].set_yscale('log')
+ax[1,1].set_xlabel('distance')
+ax[1,1].set_ylabel('pressure')
+ax[1,1].set_title('pressure')
+
+fig.suptitle('shock tube test')
 plt.show()
