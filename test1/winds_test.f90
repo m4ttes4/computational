@@ -240,6 +240,7 @@ program zeus
     
         ncicli = 0
         time = 0
+        
                
     open(28, file='shock_radius_winds.dat')
    
