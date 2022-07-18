@@ -66,7 +66,7 @@ MODULE DATA
     aher=r_half/(1.+sqrt(2.))
  
     Zfe_sol=1.8d-3
-    Zfe_out=0.4*Zfe_sol +0.01*Zfe_sol !second term to pefectly subctract the exeed
+    Zfe_out=0.4*Zfe_sol +0.015*Zfe_sol !second term to pefectly subctract the exeed
     zfesn=0.744/1.4
  
     vturb=260.e5   
@@ -83,7 +83,7 @@ MODULE DATA
  
  
  
- !########## CREAZIONE GRGLIA ###############
+ !__________ CREAZIONE GRGLIA _______________
  
     rmin = 0.*cmkpc
     rmax = 3000.*cmkpc
@@ -106,13 +106,13 @@ MODULE DATA
 
    
  
- !############ DISTRIBUZIONE TEORICA DENSITA DM ##############
+ !____________ DISTRIBUZIONE TEORICA DENSITA DM ______________
     do j=1,jmax       
        x=rr(j)/rs
        densDM(j)=densDM0/(x*(1.+x)**2) 
     enddo
  
- !######### SOLUZIONE NUMERICA E ANALITICA MASSA DM #######################
+ !_________ SOLUZIONE NUMERICA E ANALITICA MASSA DM _______________________
  
     massaDM_num(1)=0.
     massaDM_ana(1)=0.
@@ -123,13 +123,13 @@ MODULE DATA
     enddo
  
  
- !############ PROFILI DI TEMPERATURA ############
+ !____________ PROFILI DI TEMPERATURA ____________
  
     do j=1, jmax
        h(j)=((rr(j)/(1.4e3*cmkpc))/0.045)
        num1(j)=h(j)**(1.9)+0.45
        den1(j)=h(j)**(1.9)+1
-       den2(j)=(1+(((h(j)*0.045)/0.6)**2))**(0.45)
+       den2(j)=(1+(((h(j)*0.045)/0.6)**2))**(0.45) !denominatori
  
        T(j)=temp*1.35*(num1(j)/den1(j))*(1/den2(j)) !temp profile for 'dens_gas_temp'
  
@@ -149,12 +149,12 @@ MODULE DATA
 
 
  
- !################ CALCOLO DEI PROFILI DI DENSITA #############
+ !________________ CALCOLO DEI PROFILI DI DENSITA _____________
  
     grvnfw(1)=0.
     grav2(1)=0.
     do j=2,jmax
-       grvnfw(j)=guniv*massaDM_num(j)/r(j)**2 
+       grvnfw(j)=guniv*massaDM_num(j)/r(j)**2   
        grav2(j)=guniv*M_tot(j)/r(j)**2  !per quando metto la galassia     
     enddo
  
@@ -163,18 +163,20 @@ MODULE DATA
     dens_gas2=2.080d-25  !with bcg and dt/dr
  
     11 continue
-    lnd(1)=log(dens_gas0)    
+    lnd(1)=log(dens_gas0)    !occhio, i logatirmni per i calcoli sono naturali
     lnd2(1)=log(dens_gas1) 
     lnd3(1)=log(dens_gas2)    
+
+    !_______________ STEP I INTEGRO EQUILIBRIO IDROSTATICO _______________
     do j=2,jmax
-       gg=grvnfw(j)   
+       gg=grvnfw(j)   !gg == G*M
        lnd(j)=lnd(j-1)-gg*(mu*mp)*(rr(j)-rr(j-1))/(boltz*temp) !original
  
        gg2=grav2(j)
-       lnd2(j)=lnd2(j-1)-grav2(j)*(mu*mp)*(rr(j)-rr(j-1))/(boltz*temp)  !per quando metto la galassia
+       lnd2(j)=lnd2(j-1)-grav2(j)*(mu*mp)*(rr(j)-rr(j-1))/(boltz*temp)  !per quando metto la BCG
  
        Tcentr=0.5*(T(j)+T(j-1))                                          !temp centrata a r 
-       lnd3(j)=lnd3(j-1)-grav2(j)*(mu*mp)*(rr(j)-rr(j-1))/(boltz*Tcentr)-(log(T(j))-log(T(j-1)))  !con nuovo profilo di temp
+       lnd3(j)=lnd3(j-1)-grav2(j)*(mu*mp)*(rr(j)-rr(j-1))/(boltz*Tcentr)-(log(T(j))-log(T(j-1)))  !con nuovo profilo di temp e BCG
     enddo
  
  
@@ -183,7 +185,7 @@ MODULE DATA
     !cost=dens_gas0*A
  
     !dens_gas_ana(1)=dens_gas0
- !====================  CALCOLO DELLE DENSITA + PROFILO FERRO ============================
+   !____________________________ STEP II, CALCOLO DELLE DENSITA + PROFILO FERRO ______________
     do j=1,jmax
  
        !a=r(j)/rs    
@@ -203,7 +205,7 @@ MODULE DATA
        zfe_paper(j)=Zfe_sol*0.3*1.4*1.15*(2.2+xa**3)/(1+xa**3)/1.15  !Perseus!
        Zfe_paper_sub(j)=Zfe_paper(j) - Zfe_out   !! subtract z_Fe,out
 
-       dens_fe_paper(j)=dens_gas_temp(j)*Zfe_paper(j)/1.4  !densità fe rebusco !da sostituire defe fe papaer per plot di confronto
+       dens_fe_paper(j)=dens_gas_temp(j)*Zfe_paper(j)*1.4  !densità fe rebusco !da sostituire defe fe papaer per plot di confronto
     enddo
  
  
@@ -212,6 +214,7 @@ MODULE DATA
     M_gas(1)=vol(1)*dens_gas0
     M_gas2(1)=vol(1)*dens_gas1
     M_gas_temp(1)=vol(1)*dens_gas2
+
     do j=2, jmax
        M_gas(j)=M_gas(j-1)+dens_gas(j-1)*vol(j) !only cluster gas
        M_gas2(j)=M_gas2(j-1)+dens_gas_gal(j-1)*vol(j) !with BCG
@@ -271,10 +274,12 @@ MODULE DATA
          call massa(densDM, vol)
    PRINT*, 'TOTAL STAR MASS:'
          WRITE(*,1033) M_star(4999)/msol
-   PRINT, 'TOTAL GAS MASS:'
+   PRINT*, 'TOTAL GAS MASS:'
          call massa(dens_gas_temp,vol)
 
     !per plot di confronto
+    !____________________ SCRITTURA DEI RISULTATI _____________________
+
     open(30, file='massaDM.dat')
        do j=2,  jmax-1
           write(30,1000)rr(j)/cmkpc, massaDM_ana(j)/msol, massaDM_num(j)/msol, M_star(j)/msol,&
@@ -305,6 +310,7 @@ MODULE DATA
     close(30)
 
    write(*,*)'--ncicli-------Gyr--'
+
  !___________________________ DIFFUSION PART _______________________
 
     !big single time cycle for source, diffusion and source with diffusion
@@ -321,7 +327,7 @@ MODULE DATA
 
                !FOR SOURCE
                Zfe_source(j)=0
-               dens_fe_source(j)=Zfe_source(j)*(dens_gas_temp(j)/1.4)
+               dens_fe_source(j)=Zfe_source(j)*(dens_gas_temp(j)*1.4)
       
                source(j)=dens_star(j)*(6.d-23+4.7d-22)
       
@@ -354,7 +360,7 @@ MODULE DATA
                   !----- NO DIFFUSION, ONLY SOURCE
             dens_fe_source(j)=dens_fe_source(j)+dt*source(j) 
 
-            Zfe_source(j)=1.4*(dens_fe_source(j)/dens_gas_temp(j))
+            Zfe_source(j)=dens_fe_source(j)/(1.4*dens_gas_temp(j))
 
 
                !----- ONLY DIFFUSION, NO SOURCE
@@ -365,7 +371,7 @@ MODULE DATA
             +(3*dt/1.4)*((r(j+1)**2*kappa*densp1*gradzfe(j+1))&
             -(r(j)**2*kappa*dens*gradzfe(j)))/(r(j+1)**3-r(j)**3)
          
-            zfe_diff(j)=1.4*(dens_fe_diff(j))/dens_gas_temp(j)
+            zfe_diff(j)=dens_fe_diff(j)/(1.4*dens_gas_temp(j))
 
 
                !----- DIFFUSION + SOURCE
@@ -375,10 +381,10 @@ MODULE DATA
             +(3*dt/1.4)*((r(j+1)**2*kappa*densp1*gradzfe1(j+1))&
             -(r(j)**2*kappa*dens*gradzfe1(j)))/(r(j+1)**3-r(j)**3)
 
-            zfe(j)=1.4*(rho_fe(j)/dens_gas_temp(j))
+            zfe(j)=rho_fe(j)/(1.4*dens_gas_temp(j))
          enddo
 
-         call BCb(dens_fe_source)    !boundary conditions -outflow-
+         call BCb(dens_fe_source)    !boundary conditions 
          call BCb(Zfe_source)   
          call BCb(zfe_diff) 
          call BCb(dens_fe_diff)        
@@ -390,7 +396,7 @@ MODULE DATA
 
          do j=1, jmax
             zfe_diff(j)=zfe_diff(j)-Zfe_out !sottraggo eccesso
-            dens_fe_diff = zfe_diff(j)*dens_gas_temp(j)*1.4 !per il calcolo della massa
+            dens_fe_diff = zfe_diff(j)*dens_gas_temp(j)*1.4 !per il calcolo della massa SENZA ECCESSO
          enddo
 
         !_________________- MAIN RESULTS-___________________
@@ -430,6 +436,7 @@ MODULE DATA
          write(*,1005) ncicli, int(tempo/(1.d9*yr)) !in order to see the evolution over the i cycle
 
    ENDDO !end of i cycle
+
    do j=2, jmax-1
       dens_fe_paper = Zfe_paper_sub(j)*dens_gas_temp(j)*1.4  !ricalcolo densità con eccesso tolto per il calcolo della massa
    enddo
@@ -447,7 +454,7 @@ MODULE DATA
    
 
        open(30, file='sorgente.dat')
-       write(30,*)'#--rr[kpc]--zfe_sub/sol----zfe/sol-----t=2 Gyr------t=3 Gyr-----t=5 Gyr-----t=8 Gyr-----t=10 Gyr------'
+       write(30,*)'#_--rr[kpc]--zfe_sub/sol----zfe/sol-----t=2 Gyr------t=3 Gyr-----t=5 Gyr-----t=8 Gyr-----t=10 Gyr------'
       do j=1, jmax-2
          write(30, 1002) rr(j)/cmkpc, Zfe_paper_sub(j)/Zfe_sol, Zfe_paper(j)/Zfe_sol, Zfe_source1(j)/Zfe_sol,&
          Zfe_source2(j)/Zfe_sol, Zfe_source3(j)/Zfe_sol,Zfe_source4(j)/Zfe_sol,Zfe_source5(j)/Zfe_sol
@@ -456,7 +463,7 @@ MODULE DATA
       1002 format (12(1pe12.4))
 
       open(30, file='diffusione.dat')
-      write(30,*)'#--rr[kpc]--zfe_sub/sol----zfe/sol-----t=2 Gyr------t=3 Gyr-----t=5 Gyr-----t=8 Gyr-----t=10 Gyr------'
+      write(30,*)'#_--rr[kpc]--zfe_sub/sol----zfe/sol-----t=2 Gyr------t=3 Gyr-----t=5 Gyr-----t=8 Gyr-----t=10 Gyr------'
       do j=1, jmax-2
          write(30, 1002) rr(j)/cmkpc, Zfe_paper_sub(j)/Zfe_sol, Zfe_paper(j)/Zfe_sol, zfe_diff1(j)/Zfe_sol, &
          zfe_diff2(j)/Zfe_sol, zfe_diff3(j)/Zfe_sol, zfe_diff4(j)/Zfe_sol, zfe_diff5(j)/Zfe_sol
@@ -464,7 +471,7 @@ MODULE DATA
       close(30)
 
       open(30, file='diff_sorg.dat')
-      write(30,*)'#--rr[kpc]--zfe_sub/sol----zfe/sol-----t=2 Gyr------t=3 Gyr-----t=5 Gyr-----t=8 Gyr-----t=10 Gyr------'
+      write(30,*)'#_--rr[kpc]--zfe_sub/sol----zfe/sol-----t=2 Gyr------t=3 Gyr-----t=5 Gyr-----t=8 Gyr-----t=10 Gyr------'
       do j=1, jmax-2
          write(30, 1002) rr(j)/cmkpc, Zfe_paper_sub(j)/Zfe_sol, Zfe_paper(j)/Zfe_sol, zfe1(j)/Zfe_sol, &
          zfe2(j)/Zfe_sol, zfe3(j)/Zfe_sol, zfe4(j)/Zfe_sol, zfe5(j)/Zfe_sol
@@ -477,7 +484,7 @@ MODULE DATA
       tempo = 0 !time reset after the first tyme cycle
  
       tnow = 13.7d9*yr
-      kappa = 1.3d29
+      kappa = 9.95d28
       dt=((r(5)-r(4))**2/(2*kappa))
       
 
@@ -490,7 +497,7 @@ MODULE DATA
          do while(tempo<tmax(i))
 
             tempo = tempo+dt
-            !snu = 0.7*((tempo*yr)/tnow)**(-1.1)
+            
             snu = 0.02*((tempo/(tnow))**(-1.1))
 
             do j=2, jmax-1
@@ -511,10 +518,10 @@ MODULE DATA
       
             do j=2, jmax-1
                if(j>50)then
-                  kappa = 1.55d29
+                  kappa = 2.15d29
                   dt=((r(5)-r(4))**2/(2*kappa))
                else if(j<=50)then
-                  kappa = 9.97d28
+                  kappa = 9.95d28
                   dt=((r(5)-r(4))**2/(2*kappa))
                end if
 
@@ -528,7 +535,7 @@ MODULE DATA
                +(3*dt/1.4)*((r(j+1)**2*kappa*densp1*gradzfe(j+1))&
                -(r(j)**2*kappa*dens*gradzfe(j)))/(r(j+1)**3-r(j)**3)
          
-               zfe_time(j)=1.4*(rho_fe_time(j)/dens_gas_temp(j))
+               zfe_time(j)=rho_fe_time(j)/(1.4*dens_gas_temp(j))
             enddo
 
             call BCb(rho_fe_time)
@@ -560,7 +567,7 @@ MODULE DATA
       call massa(rho_fe_time,vol)
 
       open(30, file='time.dat')
-      write(30,*)'#--rr[kpc]--zfe_sub/sol----zfe/sol-----t=2 Gyr------t=3 Gyr-----t=5 Gyr-----t=8 Gyr-----t=10 Gyr------'
+      write(30,*)'#_--rr[kpc]--zfe_sub/sol----zfe/sol-----t=2 Gyr------t=3 Gyr-----t=5 Gyr-----t=8 Gyr-----t=10 Gyr------'
       do j=1, jmax-2
          write(30, 1002) rr(j)/cmkpc, Zfe_paper_sub(j)/Zfe_sol, Zfe_paper(j)/Zfe_sol, zfe_time1(j)/Zfe_sol, &
          zfe_time2(j)/Zfe_sol, zfe_time3(j)/Zfe_sol, zfe_time4(j)/Zfe_sol, zfe_time5(j)/Zfe_sol
@@ -598,16 +605,22 @@ MODULE DATA
       use data
       implicit none 
       integer :: j
-      real*8, dimension(jmax):: a1, b1, mass
-      real*8 :: result
+      real*8, dimension(jmax):: a1, b1, mass,mass1
+      real*8 :: result, result1
    
-      do j=2, jmax-1
+      do j=2, jmax
       mass(j)=a1(j)*b1(j-1)
       enddo
 
+      do j=2, 169
+      mass1(j) = a1(j)*b1(j-1)
+      end do
+
       result=sum(mass)
+      result1 = sum(mass1)
 
       write(*,89) real(result/msol)
+      !write(*,89) real(result1/msol)
       89 format(1pe12.4)
    end subroutine massa
 
