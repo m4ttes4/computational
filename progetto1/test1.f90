@@ -517,10 +517,10 @@ MODULE DATA
             
       
             do j=2, jmax-1
-               if(j>50)then
+               if(r(j)>60.*cmkpc)then
                   kappa = 2.15d29
                   dt=((r(5)-r(4))**2/(2*kappa))
-               else if(j<=50)then
+               else if(r(j)<=60.*cmkpc)then
                   kappa = 9.95d28
                   dt=((r(5)-r(4))**2/(2*kappa))
                end if
@@ -605,22 +605,19 @@ MODULE DATA
       use data
       implicit none 
       integer :: j
-      real*8, dimension(jmax):: a1, b1, mass,mass1
-      real*8 :: result, result1
-   
+      real*8, dimension(jmax):: a1, b1, mass
+      real*8 :: result
+
       do j=2, jmax
       mass(j)=a1(j)*b1(j-1)
       enddo
 
-      do j=2, 169
-      mass1(j) = a1(j)*b1(j-1)
-      end do
-
+     
       result=sum(mass)
-      result1 = sum(mass1)
+      
 
       write(*,89) real(result/msol)
-      !write(*,89) real(result1/msol)
+      
       89 format(1pe12.4)
    end subroutine massa
 
