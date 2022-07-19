@@ -18,9 +18,9 @@ program zeus
     use data
     implicit real*8 (a-h,o-z) !  i l m n
 
-    real*8 :: lx1, lum_x, kinetic, m_lost
+    real*8 :: lx1, lum_x, kinetic, m_lost, lum_bol
     real*8 :: v(N), e(N), p(N), d(N), t(N), xa(N), xb(N), dxa(N), dxb(N)
-    real*8 :: g2a(N), g2b(N), g31a(N), g31b(N), dvl1a(N), dvl1b(N)
+    real*8 :: g2a(N), g2b(N), g31a(N), g31b(N), dvl1a(N), dvl1b(N), deltav(N)
     real*8 :: divV(N), dstar(N), s(N), F1(N), M(N), e_dstar(N), F2(N), vstar(N), F3(N)
     real*8 :: q(N)
     real*8 :: v1(N),v2(N),v3(N),v4(N),v5(N),p1(N),p2(N),p3(N),p4(N),p5(N)
@@ -29,7 +29,9 @@ program zeus
     integer :: sdr, Num, ncicli
     real*8, EXTERNAL :: Cool
     real, dimension(5) :: tmax
-    logical :: scimmia_cappuccino, orangotango, winds
+    logical :: no_cooling, orangotango, winds
+    character*12 :: nome_file, nome_file2
+
 
 
 !============== GRID CREATION ===============
@@ -123,13 +125,13 @@ program zeus
     write(*,*)'PLEASE SELECT THE ISM CONDITIONS'
     write(*,*)'standard ism == 0'
     write(*,*)'hot ionised medium == 1'
-    write(*,*)'cold ionised medium == 2'
+    write(*,*)'cold ism == 2'
     read(*,*) ism
 
     if(scimpanzee == 1 ) then
-        scimmia_cappuccino = .false.  !.true. = skip the temperature evolution
+        no_cooling = .false.  !.true. = skip the temperature evolution
     else 
-        scimmia_cappuccino = .true.
+        no_cooling = .true.
     end if
 
     if(gorilla == 1 ) then
@@ -156,23 +158,23 @@ program zeus
 
     !_____________________________________
 
-        !gam for ionized gas
-    !STANDARD ISM
-
     e0 = 1.d51       !energy of sna
     C2 = 3           !for artificial viscosity
 
-    australopiteco = 0.01   !cfl coefficent
+    cfl = 0.01   !cfl coefficent
     
     orangotango = .false.         ! initial condition for the time writing file
+    nome_file = 'sedov000.dat' !output file for enegies and Sedov SOlution and lum
+    nome_file2 = 'energ000.dat' !output file for energies
 
 
 
     n0 = d0/(mu*mp)  !numerical density
     vol = 1.333*pi*xa(4)**3
-    energy_x = 0
+    
 
     m_lost = 1.d19
+    v_winds = 1.d8
 
 !=============== INITIAL CONDITIONS OF THE GRID ==================
 
@@ -219,13 +221,13 @@ program zeus
       !call winds_injection(v,d,e,p,t,xb,yr/100) !injection for 1 month 
       !non modifico le condizioni iniziali eccetto la velocità
       do i=1,3
-        v(i) = 1.d8
-        t(i) = 1.d4
+        v(i) = v_winds
+        t(i) = t0
         d(i) = d0
         e(i) = cv*d(i)*t(i)
       enddo
 
-      tmax = (/1.d5*yr, 2.d5*yr, 5.d5*yr, 1.d6*yr, 5.d6*yr/)
+      tmax = (/1.d4*yr, 5.d4*yr, 1.d5*yr, 5.d5*yr, 1.d6*yr/)
         
     end if
 
@@ -239,8 +241,10 @@ program zeus
     
         ncicli = 0
         time = 0
+        
                
-    open(28, file='shock_radius_winds.dat')
+    open(28, file=nome_file)
+    open(77, file=nome_file2)
    
 
         
@@ -257,7 +261,7 @@ program zeus
             bonobo = bonobo +1
             !this condition create a counter in order to non print at each time cycle
             !writing on terminal = bottleneck, make the code faster
-                if(bonobo.ge.2000)then   
+                if(bonobo.ge.500)then   
                     orangotango = .true.
                     bonobo = 0
                 else
@@ -271,12 +275,13 @@ program zeus
 
         if(winds .eqv. .true.) then
             do i=1,3
-                v(i) = 1.d8
-                t(i) = 1.d4
+                v(i) = v_winds
+                t(i) = t0
                 d(i) = d(i) + (m_lost*dtmin/vol) !dens = dens precedente + materia aggiunta
-                e(i) = cv*d(i)*t(i)
-             
-            enddo           
+                e(i) =  e(i) + 0.5*m_lost*dtmin*v_winds**2/vol !energia = energia meccanica dei venti
+            enddo    
+              
+            
         end if
 
         do i=1, N        
@@ -291,14 +296,19 @@ program zeus
             dtmin=min(dtmin,(xb(i)-xb(i-1))/(abs(v(i))+sqrt(gam*p(i)/d(i))))
         end do
 
-        dtmin=australopiteco*dtmin !australopiteco is the C constant 
+        dtmin=cfl*dtmin !cfl is the C constant 
 
         time=time+dtmin
 
      
-                if(ncicli == 1)then
-                    print*, 'FIRST TIME-STEP == ',dtmin/yr
-                    
+                if(ncicli == 2)then
+                    print*, 'FIRST TIME-STEP == ', dtmin/yr
+                    print*, 'initial energy ==', e(2)*vol
+                    if(winds .eqv. .false.)then
+                        print*, 'initial velocity ==', v(4)/1.d5
+                    else
+                        print*, 'initial velocity ==', v(3)/1.d5
+                    end if
                 end if
        
         
@@ -360,32 +370,35 @@ program zeus
     !========================== TEMPERATURE ===================================
       
     
-        if(scimmia_cappuccino .eqv. .TRUE.)then !to skip the cooling 
+        if(no_cooling .eqv. .TRUE.)then !to skip the cooling 
             go to 44
         end if
+
+                
 
                 !add the cooling function
                 do i=2, N-1
                     e(i)=e(i)-dtmin*(d(i)/2.17d-24)**2 *Cool(t(i)) !energy with en. loss
+                  
                 end do
                 CALL BCb(e)
 
         44 continue
     
         do i=1, N
-        t(i)=e(i)/(cv*d(i)) !temp. with en.loss
+            t(i)=e(i)/(cv*d(i)) !temp. with en.loss
         end do
     
     
         do i=1, N
         if (t(i) .le. t0_min) then !condition t>t0_min
-        t(i)=t0_min
+            t(i)=t0_min
         end if
         end do
     
     
         do i=2, N-1
-        e(i)=cv*d(i)*t(i) !new energy associated to new temperature condition
+            e(i)=cv*d(i)*t(i) !new energy associated to new temperature condition
         end do
         CALL BCb(e)
      
@@ -482,57 +495,55 @@ program zeus
         end do
         call BCa(v)
 
-        if(australopiteco<0.5) then
-            australopiteco=australopiteco+(australopiteco*0.1)
+        if(cfl<0.5) then
+            cfl=cfl+(cfl*0.1)
         else
-            australopiteco=0.5
+            cfl=0.5
         end if
 
-        if(winds .eqv. .true.)then
-        go to 55
-        end if
+     
     
     !======== FINAL PART ==========
 
         R_shock=(2.*e0/d0)**(1./5.)*(time**(2./5.)) ! sedov solution
+
+       ! kk = 0.5*m_lost*dtmin*v_winds**2/vol/1.d36   
+       ! R_winds = 27*((time/1.d6)**3*kk/n0)**(1/5) !this is already in parsec
+        
     !====================== X-RAY LUMINOSITY ===========================
         
-        !controllo della temperatura da fare     
+         
               
 
         !only gas with t>10e6 emitt  X rays 
-        !lx stand fo luminosity x
+   
 
         do i=1, N
             dn(i)=d(i)/(mu*mp)            
         enddo
 
         lum_x = 0   !reset lum x for each time step
-        lx1 = 0
-       
         energy_x=0
-        
+        energy_bol = 0
+        lum_bol = 0
         do i=2, N-1
-            if(t(i)>1.d6)then
-                
-                lx1=4*pi*(xa(i)**2)*(dn(i)**2) *cool(t(i))*(xa(i)-xa(i-1))
+            if(t(i)>= 1.d6)then                
+                lum_x=lum_x + 4*pi*(xa(i)**2)*(dn(i)**2) *cool(t(i))*(xa(i)-xa(i-1))
                 
             else
-               lx1=0                
-            end if
-
-  
-                
-                lum_x=lum_x+lx1 
-                
-                energy_x =  lum_x*dtmin   
-                                         
-        enddo
-
-        if(scimmia_cappuccino .eqv. .TRUE.)then !skip the cooling --> NO EMISSION 
-            energy_x = 0
-        end if
-        !========================================================================     
+               lum_x = lum_x               
+            end if       
+            energy_x = energy_x + lum_x*dtmin 
+        
+        
+            if(t(i) >= 1.d4)then
+                lum_bol = lum_bol + 4*pi*(xa(i)**2)*(dn(i)**2) *cool(t(i))*(xa(i)-xa(i-1))
+            else
+                lum_bol = lum_bol
+            end if                    
+                energy_bol = energy_bol + lum_bol*dtmin
+        end do
+            !la bolometrica ha senso solo se no cooling
 
         
         !====================== ENERGY FRACTIONS ==================
@@ -553,24 +564,31 @@ program zeus
 
         enddo
 
-
-       
-        total = total + energy_x
+        
 
         efficency = total/e0    !efficency
 
+        if(winds .eqv. .true.)then
+            shock = xa(maxloc(q, dim=1))
+        else
+            shock = xa(maxloc(q, dim=1))
+        end if
         !find a way to plot  the R_shock over time
         !approximation: r_shock = xa corresponding to max vaule of v or p    
+        !shock come maggiore differenza di velocità(?)
 
-        if(orangotango .eqv. .true. .and. winds .eqv. .false.)then
 
-            write(28,1000)time/yr, xa(maxloc(q))/cmpc, R_shock/cmpc, lum_x, log10(thermal/e0) , log10(kinetic/e0), log10(total/e0),&
-            log10(energy_x/e0)
+
+        if(orangotango .eqv. .true. )then
+
+            write(28,1000)time/yr, shock/cmpc, R_shock/cmpc, lum_x!, R_winds
+            !log10(thermal/e0) , log10(kinetic/e0), log10(total/e0),log10(energy_bol/e0)
             !print*,'ncicli=', ncicli,  ' dtmin=', real(dtmin/yr), 't=', real(time)/yr
+            write(77,1000)time/yr,log10(thermal/e0) , log10(kinetic/e0), log10(total/e0),log10(energy_bol/e0)
 
         end if
         !===================================================================================
-        55 continue
+        
      
        
     enddo !end time cycle
@@ -619,9 +637,13 @@ enddo !end of j-cycle
         print*, '---BOOOOOOM---'
         write(*,*)
         winds = .false.
-        australopiteco = 0.01
+        cfl = 0.01
         d0 = sum(d)/N !approximation for mean density in the sedov solution
         print*, 'MEAN DENSITY AFTER STELLAR WINDS ==', real(d0)
+        call incname(nome_file)
+        call incname(nome_file2)
+        close(28)
+        close(77)
         go to 22
     end if
 
@@ -712,28 +734,6 @@ end program zeus
     
     END FUNCTION Cool
 
-    SUBROUTINE winds_injection(vel,dens,energy,pres,temp,grid,dtime)
-    use data
-    implicit NONE
-    real*8, dimension(N):: vel,dens,energy,pres,temp,grid
-    real*8 :: vol, m_lost, dtime
-
-        vol = 1.333*pi*grid(4)**3 !volume that contains sn energy
-      
-        m_lost = 1.d20
-       
-        do i=1,3
-            vel(i) = 1.d8
-            temp(i) = 1.d4
-            dens(i) = dens(i)+(m_lost*dtime)/vol
-            energy(i) = cv*dens(i)*temp(i)
-            pres(i) = energy(i)*(gam-1)
-            
-        end do
-
-    end SUBROUTINE winds_injection
-
-!questa subroutine individua le caratteristiche fasi del ISM
     subroutine file(nome_file, grid, a,b,c,d,e)
         use data
     character nome_file*(*)
@@ -749,5 +749,24 @@ end program zeus
 
     end subroutine file
 
+    subroutine incname(name)
+
+	character*7 name
+
+	if(name(7:7) .eq. '9') go to 20
+		name(7:7) = char(1 + ichar(name(7:7)))
+		return
+
+    20  if(name(6:6) .eq. '9') go to 30
+		name(6:6) = char(1 + ichar(name(6:6)))
+		name(7:7) = '0'
+		return
+    30	if(name(5:5) .eq. '9') stop
+		name(5:5) = char(1 + ichar(name(5:5)))
+		name(6:6) = '0'
+		name(7:7) = '0'
+
+		return
+    end subroutine incname
     
    

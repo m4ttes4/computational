@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 #data = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\sedov010.dat',header=None,sep='\s+') 
-data = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto1\diffusione.dat',header=None,sep='\s+',
+data = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto1\time.dat',header=None,sep='\s+',
  comment='#', engine='python')
 #data =  pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\sedov000.dat',header=None,sep='\s+')
 #data2 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\test1\shock_radius_winds2.dat',header=None,sep='\s+')
