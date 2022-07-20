@@ -513,6 +513,7 @@ program zeus
     !======== FINAL PART ==========
 
         R_shock=(2.*e0/d0)**(1./5.)*(time**(2./5.)) ! sedov solution
+        theo_temp = 3.3d6*(e0/1.d51)**(2/5) *(n0)**(-2/5) *(time/1d4)**(-6/5)
     !====================== X-RAY LUMINOSITY ===========================
         
         !controllo della temperatura da fare     
@@ -580,7 +581,7 @@ program zeus
 
         if(orangotango .eqv. .true. )then
 
-            write(28,1000)time/yr, xa(maxloc(v))/cmpc, R_shock/cmpc, lum_x, lum_bol
+            write(28,1000)time/yr, xa(maxloc(v))/cmpc, R_shock/cmpc, lum_x, lum_bol, theo_temp
             !log10(thermal/e0) , log10(kinetic/e0), log10(total/e0),log10(energy_bol/e0)
             !print*,'ncicli=', ncicli,  ' dtmin=', real(dtmin/yr), 't=', real(time)/yr
             write(77,1000)time/yr,log10(thermal/e0) , log10(kinetic/e0), log10(total/e0),log10(energy_bol/e0)

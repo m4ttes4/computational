@@ -507,6 +507,11 @@ program zeus
 
         R_shock=(2.*e0/d0)**(1./5.)*(time**(2./5.)) ! sedov solution
 
+        !temperatura teorica della hot-bubble 
+        theo_temp = 3.3d6*(e0/1.d51)**(2/5) *(n0)**(-2/5) *(time/1d4/yr)**(-6/5)
+
+        !da confrontare con simulatione
+
        ! kk = 0.5*m_lost*dtmin*v_winds**2/vol/1.d36   
        ! R_winds = 27*((time/1.d6)**3*kk/n0)**(1/5) !this is already in parsec
         
@@ -526,10 +531,11 @@ program zeus
         energy_x=0
         energy_bol = 0
         lum_bol = 0
+        len = 0 
         do i=2, N-1
             if(t(i)>= 1.d6)then                
                 lum_x=lum_x + 4*pi*(xa(i)**2)*(dn(i)**2) *cool(t(i))*(xa(i)-xa(i-1))
-                
+                len = len+1
             else
                lum_x = lum_x               
             end if       
@@ -573,6 +579,15 @@ program zeus
         else
             shock = xa(maxloc(q, dim=1))
         end if
+        
+        do i=2, N-1
+        
+        end do
+        
+        sim_temp = sum(t, mask=t>1.d6)
+        
+        sim_temp = sim_temp / len
+        
         !find a way to plot  the R_shock over time
         !approximation: r_shock = xa corresponding to max vaule of v or p    
         !shock come maggiore differenza di velocità(?)
@@ -581,7 +596,7 @@ program zeus
 
         if(orangotango .eqv. .true. )then
 
-            write(28,1000)time/yr, shock/cmpc, R_shock/cmpc, lum_x!, R_winds
+            write(28,1000)time/yr, shock/cmpc, R_shock/cmpc, lum_x, theo_temp, sim_temp
             !log10(thermal/e0) , log10(kinetic/e0), log10(total/e0),log10(energy_bol/e0)
             !print*,'ncicli=', ncicli,  ' dtmin=', real(dtmin/yr), 't=', real(time)/yr
             write(77,1000)time/yr,log10(thermal/e0) , log10(kinetic/e0), log10(total/e0),log10(energy_bol/e0)
@@ -649,6 +664,7 @@ enddo !end of j-cycle
 
     write(*,*)
     print*, 'SUPERNOVAE EFFICENCY == ', efficency*100 ,'%'
+   
 
     close(28)
 
