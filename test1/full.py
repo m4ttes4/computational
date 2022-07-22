@@ -8,21 +8,21 @@ import pandas as pd
 
 custom_params = {"axes.spines.right": False, "axes.spines.top": False}
 sns.set_theme(style="ticks", rc=custom_params)
-temp = pd.read_csv(r'C:\Users\matte\Desktop\computational\test1\sedov001.dat', sep='\s+',
+temp = pd.read_csv(r'C:\Users\matteo\Desktop\computational\test1\sedov001.dat', sep='\s+',
                     engine='python',header=None, comment='#')
-temp1 = pd.read_csv(r'C:\Users\matte\Desktop\computational\test1\sedov000.dat', sep='\s+',
-                    engine='python',header=None, comment='#')
-
-data = pd.read_csv(r'C:\Users\matte\Desktop\computational\test1\pressure_winds.dat', sep='\s+',
+temp1 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\relazioni\sedov000.dat', sep='\s+',
                     engine='python',header=None, comment='#')
 
-data1 = pd.read_csv(r'C:\Users\matte\Desktop\computational\test1\temperature_winds.dat', sep='\s+',
+data = pd.read_csv(r'C:\Users\matteo\Desktop\computational\test1\pressure_winds.dat', sep='\s+',
                     engine='python',header=None, comment='#')
 
-data2 = pd.read_csv(r'C:\Users\matte\Desktop\computational\test1\density_winds.dat', sep='\s+',
+data1 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\test1\temperature_winds.dat', sep='\s+',
                     engine='python',header=None, comment='#')
 
-data3 = pd.read_csv(r'C:\Users\matte\Desktop\computational\test1\speed_winds.dat', sep='\s+',
+data2 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\test1\density_winds.dat', sep='\s+',
+                    engine='python',header=None, comment='#')
+
+data3 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\test1\speed_winds.dat', sep='\s+',
                     engine='python',header=None, comment='#')
 
 
