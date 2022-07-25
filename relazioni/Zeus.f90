@@ -306,6 +306,10 @@ program zeus
                     print*, 'initial energy ==', e(2)*vol
                     if(winds .eqv. .false.)then
                         print*, 'initial velocity ==', v(4)/1.d5
+                        print*,'expected temperature'
+                        write(*,1034)  3*mu*mp/(16*kbol)*v(4)**2
+
+                        1034 format(s1pe12.4)
                     else
                         print*, 'initial velocity ==', v(3)/1.d5
                     end if
@@ -666,6 +670,7 @@ enddo !end of j-cycle
    
 
     close(28)
+    close(77)
 
 !========== MAIN RESULTS =================
 
