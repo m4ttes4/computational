@@ -6,8 +6,8 @@ import pandas as pd
 import numpy as np
 
 
-data = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\Sedov010.dat',header=None,sep='\s+') 
-data2 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\Sedov000.dat',header=None,sep='\s+') 
+data = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\sedov010.dat',header=None,sep='\s+') 
+data2 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\sedov000.dat',header=None,sep='\s+') 
 
 #print(data.info)
 # %%
@@ -31,6 +31,8 @@ plt.show()
 
 plt.plot(data2[0],data2[2],color ='#a82296',label='Sedov solution')
 plt.plot(data[0],data[1],color ='#f89441',label='our project')
+plt.xscale('log')
+plt.yscale('log')
 plt.xlabel('time [yrs]')
 plt.ylabel('supernova radius [pc]')
 

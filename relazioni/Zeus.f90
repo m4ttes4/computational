@@ -26,8 +26,9 @@ program zeus
     real*8 :: v1(N),v2(N),v3(N),v4(N),v5(N),p1(N),p2(N),p3(N),p4(N),p5(N)
     real*8 :: d1(N),d2(N),d3(N),d4(N),d5(N)
     real*8 :: t1(N), t2(N), t3(N), t4(N), t5(N), dn(N)
+    !real*8 , dimension(:) :: sim_temp
     integer :: sdr, Num, ncicli
-    real*8, EXTERNAL :: Cool
+    real*8, EXTERNAL :: Cool, wsum
     real, dimension(5) :: tmax
     logical :: no_cooling, orangotango, winds
     character*12 :: nome_file, nome_file2
@@ -507,8 +508,9 @@ program zeus
 
         R_shock=(2.*e0/d0)**(1./5.)*(time**(2./5.)) ! sedov solution
 
-        !temperatura teorica della hot-bubble 
-        theo_temp = 3.3d6*(e0/1.d51)**(2/5) *(n0)**(-2/5) *(time/1d4/yr)**(-6/5)
+        !temperatura teorica post-shock
+        !theo_temp = 3.3d6*(e0/1.d51)**(2/5) *(n0)**(-2/5) *(time/1d4/yr)**(-6/5)
+        theo_temp = 3*mu*mp*(maxval(v, dim=1))**2 /(16*kbol) 
 
         !da confrontare con simulatione
 
@@ -534,7 +536,8 @@ program zeus
         len = 0 
         do i=2, N-1
             if(t(i)>= 1.d6)then                
-                lum_x=lum_x + 4*pi*(xa(i)**2)*(dn(i)**2) *cool(t(i))*(xa(i)-xa(i-1))
+                !lum_x = lum_x + 4*pi*(xa(i)**2)*(dn(i)**2) *cool(t(i))*(xa(i)-xa(i-1))
+                lum_x = lum_x + 1.333*pi*(xa(i+1)**3-xa(i)**3)*cool(t(i))
                 len = len+1
             else
                lum_x = lum_x               
@@ -543,7 +546,8 @@ program zeus
         
         
             if(t(i) >= 1.d4)then
-                lum_bol = lum_bol + 4*pi*(xa(i)**2)*(dn(i)**2) *cool(t(i))*(xa(i)-xa(i-1))
+                !lum_bol = lum_bol + 4*pi*(xa(i)**2)*(dn(i)**2) *cool(t(i))*(xa(i)-xa(i-1))
+                lum_bol = lum_bol + 1.333*pi*(xa(i+1)**3-xa(i)**3)*cool(t(i))
             else
                 lum_bol = lum_bol
             end if                    
@@ -576,17 +580,24 @@ program zeus
 
         if(winds .eqv. .true.)then
             shock = xa(maxloc(q, dim=1))
-        else
-            shock = xa(maxloc(q, dim=1))
+        else if(winds .eqv. .false.) then
+            shock = xa(maxloc(v, dim=1))
         end if
         
         do i=2, N-1
         
         end do
         
-        sim_temp = sum(t, mask=t>1.d6)
+        !sim_temp = sum(t, mask=t>1.d6) !seleziono hot bubble
         
-        sim_temp = sim_temp / len
+        !sim_temp = sum(t(maxloc(v, dim=1)-1 : maxloc(v, dim=1)))/ &
+        !(size(t(maxloc(v,dim=1)-1: maxloc(v,dim=1))))
+        !tre punti dietro fronte di shock
+
+        sim_temp = wsum(t,d) !media pesata sulla densità
+        !sim_temp = t(maxloc(v, dim=1))
+        
+        !sim_temp = sum(sim_temp)/size(sim_temp)
         
         !find a way to plot  the R_shock over time
         !approximation: r_shock = xa corresponding to max vaule of v or p    
@@ -666,6 +677,7 @@ enddo !end of j-cycle
    
 
     close(28)
+    close(77)
 
 !========== MAIN RESULTS =================
 
@@ -784,4 +796,23 @@ end program zeus
 		return
     end subroutine incname
     
-   
+    real*8 FUNCTION wsum(temp, dens)
+    USE DATA
+    IMPLICIT NONE
+
+    real*8, dimension(N):: temp, dens
+    real*8 :: num, den
+    integer :: nn, nf
+
+    nn = maxloc(dens, dim = 1) !dimensione hot bubble
+    nf = maxloc(dens, dim=1)-10  !punti post-shock
+    
+    num=0
+    den=0
+    do i=nf, nn
+        num = num + (temp(i)*dens(i))
+        
+        den = den + dens(i)
+    end do
+        wsum = num/den
+   end function wsum

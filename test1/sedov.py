@@ -12,16 +12,16 @@ nomefile = 'speed_winds.dat'
 
 comparison = False
 
-ism = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\Sedov000.dat', sep='\s+',
+ism = pd.read_csv(r'C:\Users\matteo\Desktop\computational\relazioni\sedov000.dat', sep='\s+',
                     engine='python',header=None, comment='#')
 #ism2 = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\Sedov010.dat', sep='\s+',
                     #engine='python',header=None, comment='#')
 
 if comparison == True:
-    him = pd.read_csv(r'C:\Users\matte\Desktop\scriptVSC\progetto2\shock_radius_HIM.dat', sep='\s+',
+    him = pd.read_csv(r'C:\Users\matteo\Desktop\scriptVSC\progetto2\shock_radius_HIM.dat', sep='\s+',
                         engine='python',header=None, comment='#')
 
-    cim = pd.read_csv(r'C:\Users\matte\Desktop\scriptVSC\progetto2\shock_radius_CIM.dat', sep='\s+',
+    cim = pd.read_csv(r'C:\Users\matteo\Desktop\scriptVSC\progetto2\shock_radius_CIM.dat', sep='\s+',
                         engine='python',header=None, comment='#')
 
 fig, ax = plt.subplots(nrows=1,ncols=1, figsize =(10,6))

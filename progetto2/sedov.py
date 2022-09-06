@@ -18,10 +18,10 @@ ism = pd.read_csv(r'C:\Users\matteo\Desktop\computational\progetto2\Sedov000.dat
                     #engine='python',header=None, comment='#')
 
 if comparison == True:
-    him = pd.read_csv(r'C:\Users\matte\Desktop\scriptVSC\progetto2\shock_radius_HIM.dat', sep='\s+',
+    him = pd.read_csv(r'C:\Users\matteo\Desktop\scriptVSC\progetto2\shock_radius_HIM.dat', sep='\s+',
                         engine='python',header=None, comment='#')
 
-    cim = pd.read_csv(r'C:\Users\matte\Desktop\scriptVSC\progetto2\shock_radius_CIM.dat', sep='\s+',
+    cim = pd.read_csv(r'C:\Users\matteo\Desktop\scriptVSC\progetto2\shock_radius_CIM.dat', sep='\s+',
                         engine='python',header=None, comment='#')
 
 fig, ax = plt.subplots(nrows=1,ncols=1, figsize =(10,6))
@@ -38,8 +38,8 @@ if comparison == True:
     ax.plot(cim[0],cim[2], label = 'CIM',color=colors[0])
     plt.plot(cim[0], cim[1], label='our project CIM', color=colors[0],linestyle='--')
 
-#ax.set_xscale('log')
-#ax.set_yscale('log')
+ax.set_xscale('log')
+ax.set_yscale('log')
 ax.set_ylabel('shock radius [Pc]')
 ax.set_xlabel('time [yr]')
 #ax.get_xaxis().set_visible(False)
