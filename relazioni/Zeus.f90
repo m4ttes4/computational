@@ -594,7 +594,7 @@ program zeus
         !(size(t(maxloc(v,dim=1)-1: maxloc(v,dim=1))))
         !tre punti dietro fronte di shock
 
-        sim_temp = wsum(t,d) !media pesata sulla densità
+        sim_temp = wsum(t,d,v) !media pesata sulla densità
         !sim_temp = t(maxloc(v, dim=1))
         
         !sim_temp = sum(sim_temp)/size(sim_temp)
@@ -796,16 +796,16 @@ end program zeus
 		return
     end subroutine incname
     
-    real*8 FUNCTION wsum(temp, dens)
+    real*8 FUNCTION wsum(temp, dens, vel)
     USE DATA
     IMPLICIT NONE
 
-    real*8, dimension(N):: temp, dens
+    real*8, dimension(N):: temp, dens, vel
     real*8 :: num, den
     integer :: nn, nf
 
-    nn = maxloc(dens, dim = 1) !dimensione hot bubble
-    nf = maxloc(dens, dim=1)-10  !punti post-shock
+    nn = maxloc(vel, dim = 1) !dimensione hot bubble
+    nf = maxloc(vel, dim=1)-10  !punti post-shock
     
     num=0
     den=0
