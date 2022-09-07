@@ -307,6 +307,10 @@ program zeus
                     print*, 'initial energy ==', e(2)*vol
                     if(winds .eqv. .false.)then
                         print*, 'initial velocity ==', v(4)/1.d5
+                        print*,'expected temperature'
+                        write(*,1034)  3*mu*mp/(16*kbol)*v(4)**2
+
+                        1034 format(s1pe12.4)
                     else
                         print*, 'initial velocity ==', v(3)/1.d5
                     end if
@@ -514,8 +518,9 @@ program zeus
 
         !da confrontare con simulatione
 
-       ! kk = 0.5*m_lost*dtmin*v_winds**2/vol/1.d36   
-       ! R_winds = 27*((time/1.d6)**3*kk/n0)**(1/5) !this is already in parsec
+        !evoluzione teorica wind bubble
+        !kk = 0.5*m_lost*dtmin*v_winds**2/vol/1.d36   
+        !R_winds = 27*((time/1.d6)**3*kk/n0)**(1/5) !this is already in parsec
         
     !====================== X-RAY LUMINOSITY ===========================
         
@@ -583,10 +588,11 @@ program zeus
         else if(winds .eqv. .false.) then
             shock = xa(maxloc(v, dim=1))
         end if
-        
-        do i=2, N-1
-        
-        end do
+              
+
+        !temperatura simulata == media pesata sulle densità
+        !EVOLUZIONE HOT BUBBLE
+        !temp teorica è temp dietro lo shock
         
         !sim_temp = sum(t, mask=t>1.d6) !seleziono hot bubble
         
