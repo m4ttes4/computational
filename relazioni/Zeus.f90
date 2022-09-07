@@ -517,6 +517,7 @@ program zeus
         theo_temp = 3*mu*mp*(maxval(v, dim=1))**2 /(16*kbol) 
 
         !da confrontare con simulatione
+        sim_temp = wsum(t,d,v) !media pesata sulla densità
 
         !evoluzione teorica wind bubble
         !kk = 0.5*m_lost*dtmin*v_winds**2/vol/1.d36   
@@ -600,7 +601,7 @@ program zeus
         !(size(t(maxloc(v,dim=1)-1: maxloc(v,dim=1))))
         !tre punti dietro fronte di shock
 
-        sim_temp = wsum(t,d,v) !media pesata sulla densità
+        
         !sim_temp = t(maxloc(v, dim=1))
         
         !sim_temp = sum(sim_temp)/size(sim_temp)
@@ -802,7 +803,7 @@ end program zeus
 		return
     end subroutine incname
     
-    real*8 FUNCTION wsum(temp, dens, vel)
+    real*8 FUNCTION wsum(temp, dens, vel) !funzione per la media pesata
     USE DATA
     IMPLICIT NONE
 
