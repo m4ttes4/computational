@@ -1,7 +1,7 @@
 MODULE DATA
     integer :: N, i
     real*8 :: pi,cmpc,cmkpc,yr,kbol,mu,mp,msol, cv, gam
-    parameter (N=2000)
+    parameter(N=2000)
     parameter(pi=3.141592)
     parameter(cmpc=3.085d18)
     parameter(cmkpc=1000.*cmpc)
@@ -307,8 +307,8 @@ program zeus
                     print*, 'initial energy ==', e(2)*vol
                     if(winds .eqv. .false.)then
                         print*, 'initial velocity ==', v(4)/1.d5
-                        print*,'expected temperature'
-                        write(*,1034)  3*mu*mp/(16*kbol)*v(4)**2
+                        !print*,'expected temperature'
+                        !write(*,1034)  3*mu*mp/(16*kbol)*v(4)**2
 
                         1034 format(s1pe12.4)
                     else
@@ -418,7 +418,7 @@ program zeus
 
     !TRANSPORT STEP (Upwind FIRST ORDER)
 
-        do i=2, N-1       !! here define the momentum density
+        do i=2, N-1       !! here define the momentum densityP
             s(i)=0.5*(d(i)+d(i-1))*v(i)  !! this is at "i" !!
         end do
 
@@ -517,7 +517,7 @@ program zeus
         theo_temp = 3*mu*mp*(maxval(v, dim=1))**2 /(16*kbol) 
 
         !da confrontare con simulatione
-        sim_temp = wsum(t,d,v) !media pesata sulla densità
+        sim_temp = wsum(t,d) !media pesata sulla densità
 
         !evoluzione teorica wind bubble
         !kk = 0.5*m_lost*dtmin*v_winds**2/vol/1.d36   
@@ -803,16 +803,16 @@ end program zeus
 		return
     end subroutine incname
     
-    real*8 FUNCTION wsum(temp, dens, vel) !funzione per la media pesata
+    real*8 FUNCTION wsum(temp, dens) !funzione per la media pesata
     USE DATA
     IMPLICIT NONE
 
-    real*8, dimension(N):: temp, dens, vel
+    real*8, dimension(N):: temp, dens
     real*8 :: num, den
     integer :: nn, nf
 
-    nn = maxloc(vel, dim = 1) !dimensione hot bubble
-    nf = maxloc(vel, dim=1)-10  !punti post-shock
+    nn = maxloc(dens, dim = 1) !dimensione hot bubble
+    nf = maxloc(dens, dim=1)-10  !punti post-shock
     
     num=0
     den=0
