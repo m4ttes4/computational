@@ -148,13 +148,11 @@ ax = Axis(fig[1,1],
     title= "hydro",
     xlabel=" distance",
     ylabel = "density",
-    
-    #xaxis = :log10,
-    #yaxis = :log10
+
     )
 display(fig)
 
-plot = lines!(ax, xb, d)
+plot = lines!(ax, xb/cmpc, d)
 
 
 println("Hit enter when plot is ready")
@@ -173,7 +171,7 @@ while tempo <tmax
 
     ncicli += 1
     bonobo += 1
-    if bonobo > 500
+    if bonobo > 5
         orangotango = true
         bonobo = 0
     else 
@@ -373,13 +371,14 @@ while tempo <tmax
             cfl = 0.5
         end
         
-        #if orangotango == true
-            #println("TIME PASSED == $(tempo/yr), $ncicli")
+        if orangotango == true
+            println("TIME PASSED == $(tempo/yr), $ncicli")
             
             delete!(plot.parent, plot)
-            plot = lines!(ax,xb,d)
-            sleep(0.02)
-        #end
+            plot = lines!(ax,xb/cmpc,d)
+            ylims!(ax, 0, 1e-23)
+            #sleep(0.05)
+        end
 
         #delete!(makie_plot_3d_contour.parent, makie_plot_3d_contour)
 
