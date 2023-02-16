@@ -1,8 +1,22 @@
 ﻿using GLMakie
-using ProgressMeter
+
 
 
 function main()
+
+    function Cool(Temp1)
+        
+        Temp_kev = Temp1/1.16e7
+        
+        if Temp_kev > 0.02
+            return (8.6e-3*(Temp_kev^(-1.7)) + 0.058*(Temp_kev^(0.5)) + 0.063)*1e-22
+        elseif Temp_kev <= 0.02 && Temp_kev >= 0.0017235
+            return 6.72e-22*((Temp_kev/0.02)^0.6)
+        elseif Temp_kev < 0.0017235
+            return 1.544e-22*((Temp_kev/0.0017235)^6)
+        end
+    end
+    
 #definizione de parametri
 N = 1000
 cmpc = 3.085e18
@@ -92,8 +106,8 @@ cfl = 0.01
 
 d0 = 2e-24
 t0 = 1e4
-t0_min = t0
-n0=d0/(mu*mp)
+t0_min = 1e4
+#n0=d0/(mu*mp)
 vol = 1.333*pi*xa[4]^3
 
 v = zeros(N)
@@ -130,7 +144,7 @@ for i=1:3
 end
 
 tmax=1e5*yr
-tempo = 0. 
+tempo = 0.
 ncicli = 0
 bonobo = 0
 winds = false
@@ -145,33 +159,72 @@ display(e[2:4]/e0)
 
 fig = Figure()
 ax = Axis(fig[1,1],
-    title= "hydro",
+    title= "density",
     xlabel=" distance",
     ylabel = "density",
+    #xscale = log10
 
     )
+    ax1 = Axis(fig[2,1],
+    title="velocity",
+    xlabel="distance",
+    ylabel="velocity")
+
+ax2 = Axis(fig[3,1],
+title="temperature",
+xlabel="distance",
+ylabel = "T")
+
+plot = lines!(ax, xb/cmpc,d)
+xlims!(ax, 0, 75)
+#ylims!(ax, 1e-28 ,1e-23)
+plot2 = lines!(ax1, xb/cmpc, v/1e5, color=:red)
+
+
+plot3 = lines!(ax2, xb/cmpc, t, color= :green)
+
+
 display(fig)
-
-plot = lines!(ax, xb/cmpc, d)
-
-
 println("Hit enter when plot is ready")
 readline()
 
 
+v_winds = 1e8
+m_lost = 1e19
+
+if winds == true
+    println("STELLAR WINDS PHASE")
+    # call winds_injection(v, d, e, p, t, xb, yr/100) !injection for 1 month
+    # non modifico le condizioni iniziali eccetto la velocità
+    for i = 1:3
+        v[i] = v_winds
+        t[i] = t0
+        d[i] = d0
+        e[i] = cv * d[i] * t[i]
+    end
+
+    tmax = 1.0e6 * yr
+end
+
+
+dtmin = 0
 
 #--------------- CICLO TEMPORALE PRIMCIPALE ----------------
 while tempo <tmax
 
-    #global bonobo
-    #global ncicli
-    #global tempo
-    #global gam, cfl, deltax, yr
-    #println(ncicli)
+    if winds == true
+        for i = 1:3
+            v[i] = v_winds
+            t[i] = t0
+            d[i] += m_lost * dtmin / vol # dens = dens precedente + materia aggiunta
+            e[i] += 0.5 * m_lost * dtmin * v_winds^2 / vol # energia = energia meccanica dei venti
+        end
+    end
+    
 
     ncicli += 1
     bonobo += 1
-    if bonobo > 5
+    if bonobo > 10
         orangotango = true
         bonobo = 0
     else 
@@ -260,6 +313,17 @@ while tempo <tmax
         end
         e[1] = e[2]
         e[N] = e[N-1]
+
+        
+                # add the cooling function
+        for i in 2:N-1
+            e[i] -= dtmin*(d[i]/2.17e-24)^2 * Cool(t[i]) # energy with en. loss
+        end
+        e[1] = e[2]
+        e[N] = e[N-1]
+
+
+
         
         for i=2: N-1
             t[i] = e[i]/(cv*d[i])
@@ -318,7 +382,10 @@ while tempo <tmax
 
         # Update the density after the arrival of the matter flow
         for i = 2:N-1
-            d[i] = d[i] - dtmin*(F1[i+1] - F1[i])/dvl1a[i]   # density after the arrival of matter flow
+            d[i] = d[i] - dtmin*(F1[i+1] - F1[i])/dvl1a[i]   
+            if d[i] < 1e-40 
+                d[i]= 0
+            end # density after the arrival of matter flow
         end
         d[1] = d[2]
         d[N] = d[N-1]
@@ -370,14 +437,33 @@ while tempo <tmax
         else
             cfl = 0.5
         end
-        
+
+        function text()
+            println("hello world")
+            
+        end
         if orangotango == true
+           # text()
             println("TIME PASSED == $(tempo/yr), $ncicli")
             
             delete!(plot.parent, plot)
-            plot = lines!(ax,xb/cmpc,d)
-            ylims!(ax, 0, 1e-23)
-            #sleep(0.05)
+            plot = lines!(ax, xb[2:end]/cmpc, d[2:end], color=:blue)
+        
+            xlims!(ax, 0, 75)
+
+            delete!(plot2.parent, plot2)            
+            plot2=lines!(ax1, xb/cmpc, v/1e5, color=:red)
+        
+           ylims!(ax, 1e-28, 1.6e-23)
+           #ylims!(ax, 1e-28 ,1e-23)
+           
+           xlims!(ax1, 0, 75)
+           ylims!(ax1, -10, 600)
+
+           delete!(plot3.parent, plot3)
+           plot3 = lines!(ax2, xb/cmpc, t, color= :green)
+           xlims!(ax2, 0, 75)
+           # sleep(0.01)
         end
 
         #delete!(makie_plot_3d_contour.parent, makie_plot_3d_contour)
