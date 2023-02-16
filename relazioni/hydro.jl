@@ -38,7 +38,7 @@ dxb = copy(xa)
 
 #grid creation
 xmin = 0
-xmax = 200*cmpc
+xmax = 100*cmpc
 
 
 xa[1] = xmin +(xmax-xmin)*(-1) /(N-1)
@@ -181,7 +181,7 @@ xlims!(ax, 0, 75)
 plot2 = lines!(ax1, xb/cmpc, v/1e5, color=:red)
 
 
-plot3 = lines!(ax2, xb/cmpc, t, color= :green)
+plot3 = lines!(ax2, xb/cmpc,p, color= :green)
 
 
 display(fig)
@@ -445,24 +445,29 @@ while tempo <tmax
         if orangotango == true
            # text()
             println("TIME PASSED == $(tempo/yr), $ncicli")
+            println(maximum(t))
             
             delete!(plot.parent, plot)
             plot = lines!(ax, xb[2:end]/cmpc, d[2:end], color=:blue)
+            hideydecorations!(ax, ticks = false)
         
             xlims!(ax, 0, 75)
 
             delete!(plot2.parent, plot2)            
             plot2=lines!(ax1, xb/cmpc, v/1e5, color=:red)
+            hideydecorations!(ax1, ticks = false)
         
-           ylims!(ax, 1e-28, 1.6e-23)
+           #ylims!(ax, 1e-28, 1.6e-23)
            #ylims!(ax, 1e-28 ,1e-23)
            
            xlims!(ax1, 0, 75)
-           ylims!(ax1, -10, 600)
+           #ylims!(ax1, -10, 600)
 
            delete!(plot3.parent, plot3)
-           plot3 = lines!(ax2, xb/cmpc, t, color= :green)
+           plot3 = lines!(ax2, xb/cmpc, p, color= :green)
            xlims!(ax2, 0, 75)
+           hideydecorations!(ax2, ticks = false)
+
            # sleep(0.01)
         end
 
