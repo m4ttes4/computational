@@ -18,7 +18,7 @@ function main()
     end
     
 #definizione de parametri
-N = 1000
+N = 750
 cmpc = 3.085e18
 mu = 1.4
 msol = 1.989e33
@@ -38,7 +38,7 @@ dxb = copy(xa)
 
 #grid creation
 xmin = 0
-xmax = 100*cmpc
+xmax = 75*cmpc
 
 
 xa[1] = xmin +(xmax-xmin)*(-1) /(N-1)
@@ -137,11 +137,7 @@ for i=1:N
 end
 
 
-for i=1:3
-    e[i] = e0/vol
-    p[i] = e[i]*(gam-1)
-    t[i] = e[i]/(cv*d[i])
-end
+
 
 tmax=1e5*yr
 tempo = 0.
@@ -162,7 +158,7 @@ ax = Axis(fig[1,1],
     title= "density",
     xlabel=" distance",
     ylabel = "density",
-    #xscale = log10
+    #yscale = log10
 
     )
     ax1 = Axis(fig[2,1],
@@ -171,9 +167,9 @@ ax = Axis(fig[1,1],
     ylabel="velocity")
 
 ax2 = Axis(fig[3,1],
-title="temperature",
+title="pressure",
 xlabel="distance",
-ylabel = "T")
+ylabel = "pressure")
 
 plot = lines!(ax, xb/cmpc,d)
 xlims!(ax, 0, 75)
@@ -192,6 +188,8 @@ readline()
 v_winds = 1e8
 m_lost = 1e19
 
+@label after_winds
+
 if winds == true
     println("STELLAR WINDS PHASE")
     # call winds_injection(v, d, e, p, t, xb, yr/100) !injection for 1 month
@@ -201,12 +199,19 @@ if winds == true
         t[i] = t0
         d[i] = d0
         e[i] = cv * d[i] * t[i]
+        
     end
-
     tmax = 1.0e6 * yr
+else 
+    for i=1:3
+        e[i] = e0/vol
+        p[i] = e[i]*(gam-1)
+        t[i] = e[i]/(cv*d[i])
+    end
+    tmax = 1e5*yr
 end
 
-
+tempo = 0
 dtmin = 0
 
 #--------------- CICLO TEMPORALE PRIMCIPALE ----------------
@@ -224,7 +229,7 @@ while tempo <tmax
 
     ncicli += 1
     bonobo += 1
-    if bonobo > 10
+    if bonobo > 50
         orangotango = true
         bonobo = 0
     else 
@@ -438,14 +443,15 @@ while tempo <tmax
             cfl = 0.5
         end
 
-        function text()
-            println("hello world")
-            
+        if mod(ncicli, 1000) == 0
+            println("TIME PASSED == $(tempo/yr)")
         end
+
+
         if orangotango == true
            # text()
-            println("TIME PASSED == $(tempo/yr), $ncicli")
-            println(maximum(t))
+            #println("TIME PASSED == $(tempo/yr), $ncicli")
+            #println(maximum(t))
             
             delete!(plot.parent, plot)
             plot = lines!(ax, xb[2:end]/cmpc, d[2:end], color=:blue)
@@ -471,14 +477,12 @@ while tempo <tmax
            # sleep(0.01)
         end
 
-        #delete!(makie_plot_3d_contour.parent, makie_plot_3d_contour)
-
-
-
-
-        #println("se stai leggendo questo sei uhn bomber")
-
 end 
+    if winds == true &&  tempo >= tmax
+        winds == false
+        println("BOOOM")
+        @goto after_winds
+    end
 end
 main()
 
