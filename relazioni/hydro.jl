@@ -143,7 +143,8 @@ tmax=1e5*yr
 tempo = 0.
 ncicli = 0
 bonobo = 0
-winds = false
+winds = true
+plot = false
 
 display("Initial condition")
 display(xb[1])
@@ -448,7 +449,7 @@ while tempo <tmax
         end
 
 
-        if orangotango == true
+        if orangotango == true && plot == true
            # text()
             #println("TIME PASSED == $(tempo/yr), $ncicli")
             #println(maximum(t))
@@ -479,7 +480,7 @@ while tempo <tmax
 
 end 
     if winds == true &&  tempo >= tmax
-        winds == false
+        winds = false
         println("BOOOM")
         @goto after_winds
     end
